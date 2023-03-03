@@ -1,10 +1,14 @@
+# IDE
+.idea
+.vscode
+
+# OS system
+**/.DS_Store
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
-
-# C extensions
-*.so
 
 # Distribution / packaging
 .Python
