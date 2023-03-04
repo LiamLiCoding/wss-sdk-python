@@ -88,3 +88,18 @@ class AsyncWebsocketClient:
         time.sleep(self.reconnect_interval)
         print("AsyncWebsocketClient: Reconnect ....")
         self.start()
+
+
+class AsyncHttpClient:
+    def __init__(self, device_key):
+        self.m_device_key = device_key
+
+    @staticmethod
+    def get_timestamp():
+        millis = int(round(time.time() * 1000))
+        return millis
+
+    # TODO: HTTP client is still developing
+    def send(self):
+        pass
+
