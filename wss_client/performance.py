@@ -61,7 +61,7 @@ class PerformanceMonitor:
 			return
 
 		with self.m_thread_lock:
-			self.m_cpu_used_rate = psutil.cpu_percent(interval=self.m_interval)
+			self.m_cpu_used_rate = psutil.cpu_percent(interval=1)
 			self.m_mem_used_rate = psutil.virtual_memory().percent
 			self.m_disk_io_read = psutil.disk_io_counters().read_bytes
 			self.m_disk_io_write = psutil.disk_io_counters().write_bytes
@@ -73,7 +73,7 @@ class PerformanceMonitor:
 
 	def start(self):
 		self.m_running = True
-		self.m_thread = threading.Timer(interval=1, function=self.update_dynamic_info)
+		self.m_thread = threading.Timer(interval=self.m_interval, function=self.update_dynamic_info)
 		self.m_thread.start()
 
 	def stop(self):
