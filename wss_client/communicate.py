@@ -8,18 +8,10 @@ import websocket
 g_WEBSOCKET_CLIENT = None
 
 
-def init_websocket_client(url, use_ssl=True):
-    global g_WEBSOCKET_CLIENT
-    if not g_WEBSOCKET_CLIENT:
-        g_WEBSOCKET_CLIENT = AsyncWebsocketClient(url, use_ssl)
-    g_WEBSOCKET_CLIENT.start()
-    return g_WEBSOCKET_CLIENT
-
-
 def get_websocket_client():
     global g_WEBSOCKET_CLIENT
     if not g_WEBSOCKET_CLIENT:
-        raise ValueError('Please init webclient object first')
+        g_WEBSOCKET_CLIENT = AsyncWebsocketClient()
     return g_WEBSOCKET_CLIENT
 
 
@@ -28,11 +20,11 @@ def websock_send(message, message_type):
 
 
 class AsyncWebsocketClient:
-    def __init__(self, url, reconnect_interval=5):
+    def __init__(self):
         self._websocket_obj = None
-        self.url = url
+        self.url = ''
         self.connected = False
-        self.reconnect_interval = reconnect_interval
+        self.reconnect_interval = 5
         self._thread = None
         self._thread_lock = threading.Lock()
 
@@ -63,13 +55,15 @@ class AsyncWebsocketClient:
             self._thread.join()
             self._thread = None
 
-    def start(self):
+    def start(self, url):
         self._websocket_obj = websocket.WebSocketApp(
-            url=self.url,
+            url=url,
             on_error=self.on_error,
             on_open=self.on_open,
             on_message=self.on_message,
             on_close=self.on_close)
+
+        self.url = url
         self._thread = threading.Thread(target=self._websocket_obj.run_forever)
         self._thread.daemon = True
         self._thread.start()
