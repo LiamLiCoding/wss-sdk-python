@@ -3,6 +3,19 @@ import copy
 import threading
 
 
+CSI_CAMERAS = []
+
+
+def get_csi_camera(index=0):
+    global CSI_CAMERAS
+    if index == 0 and not len(CSI_CAMERAS):
+        camera = CSICamera()
+        CSI_CAMERAS.append(camera)
+        return camera
+    elif index < len(CSI_CAMERAS) - 1:
+        return CSI_CAMERAS[index]
+
+
 class CSICamera:
     def __init__(self) -> None:
         self.m_video_capture = None
@@ -13,8 +26,8 @@ class CSICamera:
         self.m_thread_lock = threading.Lock()
         self.m_running = False
 
-    def open(self, camera_num=0):
-        self.m_video_capture = cv2.VideoCapture(camera_num)
+    def open(self, source=0):
+        self.m_video_capture = cv2.VideoCapture(source)
 
         if self.m_video_capture and self.get_open_status():
             self.m_grabbed, self.m_frame = self.m_video_capture.read()
@@ -22,7 +35,7 @@ class CSICamera:
             self.m_video_capture = None
             self.m_frame = None
             self.m_grabbed = False
-            raise RuntimeError("Unable to open camera")
+            raise RuntimeError("Unable to open csi_camera or video source")
 
     def start(self):
         if self.m_running:
@@ -58,7 +71,7 @@ class CSICamera:
 
     def read(self):
         with self.m_thread_lock:
-            frame = copy.deepcopy(self.m_frame.copy)
+            frame = copy.deepcopy(self.m_frame)
             grabbed = self.m_grabbed
         return grabbed, frame
 
