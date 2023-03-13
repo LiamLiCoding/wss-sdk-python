@@ -4,6 +4,7 @@ import performance
 import cv2
 import camera
 import detector
+import event
 
 API_KEY = ''
 WEBSOCKET_URL = "wss://wssweb.net/ws/device/{api_key}"
@@ -23,6 +24,15 @@ detector_obj = detector.MotionDetector()
 cv2.namedWindow('image', cv2.WINDOW_NORMAL)
 detect = False
 
+
+def upload_event_info(e):
+    print(e)
+
+
+event_controller = event.get_event_controller()
+event_controller.register_event_change_signal(upload_event_info)
+
+
 while True:
     grabbed, frame = csi_camera.read(show_time=True)
     key = cv2.waitKey(1) & 0xFF
@@ -32,6 +42,8 @@ while True:
         result, result_frame = detector_obj.frame_delta_detect(frame=frame)
         if grabbed:
             cv2.imshow('Main Frame', result_frame)
+        if result:
+            event_controller.change_event(2)
     key = cv2.waitKey(1) & 0xFF
     if key == ord("q"):
         break

@@ -1,11 +1,19 @@
-import communicate
 
+
+EVENT_CONTROLLER = None
 
 NO_EVENT = 0
 EVENT1 = 1
 EVENT2 = 2
 EVENT3 = 3
 EVENT4 = 4
+
+
+def get_event_controller():
+	global EVENT_CONTROLLER
+	if not EVENT_CONTROLLER:
+		EVENT_CONTROLLER = EventController()
+	return EVENT_CONTROLLER
 
 
 class EventController:
