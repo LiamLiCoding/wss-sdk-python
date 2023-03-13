@@ -81,7 +81,7 @@ class AsyncWebsocketClient:
         self._websocket_obj.close()
         time.sleep(self.reconnect_interval)
         print("AsyncWebsocketClient: Reconnect ....")
-        self.start()
+        self.start(self.url)
 
 
 class AsyncHttpClient:
