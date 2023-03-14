@@ -11,6 +11,6 @@ websocket_client.start(WEBSOCKET_URL.format(api_key=API_KEY))
 monitor = performance.get_performance_monitor()
 monitor.start()
 
+
 while True:
     pass
-
