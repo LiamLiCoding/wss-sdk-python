@@ -22,7 +22,6 @@ class CSICamera:
         self.video_capture = None
         self.frame = None
         self.grabbed = False
-        self.detectors = []
 
         self.thread = None
         self.thread_lock = threading.Lock()
@@ -86,8 +85,5 @@ class CSICamera:
         if self.video_capture:
             self.video_capture.release()
             self.video_capture = None
-    
-    def register_detector(self, detector):
-        self.detectors.append(detector)
 
 

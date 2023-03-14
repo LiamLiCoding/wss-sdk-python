@@ -1,40 +1,41 @@
 import cv2
 import imutils
-
-__all__ = ['MotionDetector', 'HumanDetector', 'DetectorManager']
-
-
-class DetectorManager:
-    def __init__(self):
-        pass
+import camera
+import event
 
 
-class BaseDetector:
-    frame = None
-
-    def register_callback(self):
-        pass
-
-    def get_tagged_frame(self):
-        return self.frame
-
-    def tag_frame(self):
-        return self.frame
-
-    def detect(self, frame):
-        result = False
-
-        self.frame = frame
-
-        return result, frame
-
-
-class MotionDetector(BaseDetector):
+class IntruderDetector:
     def __init__(self) -> None:
         self.benchmark_frame = None
+        self.camera = None
+        self.result = False
+        self.frame = None
+        self.is_started = False
 
-    def frame_delta_detect(self, frame):
-        result = False
+    def init_camera(self):
+        self.camera = camera.get_csi_camera(0)
+        self.camera.open(0)
+        self.camera.start()
+
+    def show(self):
+        cv2.imshow('Intruder Detector', self.frame)
+        key = cv2.waitKey(1) & 0xFF
+
+    def start(self):
+        self.init_camera()
+        self.is_started = True
+
+    def stop(self):
+        if self.camera:
+            self.camera.release()
+            self.camera = None
+            cv2.destroyAllWindows()
+
+    def frame_delta_detect(self):
+        if not self.is_started or not self.camera:
+            return
+
+        grabbed, frame = self.camera.read(show_time=True)
         frame = imutils.resize(frame, width=500)
 
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -50,28 +51,15 @@ class MotionDetector(BaseDetector):
         thresh = cv2.dilate(thresh, None, iterations=2)
         counts, _ = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
-        # 遍历轮廓
         for c in counts:
-            # 遍历轮廓
             if cv2.contourArea(c) < 500:
                 continue
             (x, y, w, h) = cv2.boundingRect(c)
             cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
-            result = True
+            self.result = True
+            event.get_event_controller().change_event(event.EVENT2)
 
         self.frame = frame
 
-        return result, frame
-
-
-class HumanDetector(BaseDetector):
-    def __init__(self) -> None:
-        self.frame = None
-
-    def detect(self, frame):
-        result = False
-
-        self.frame = frame
-
-        return result
+        return self.result, frame
 
