@@ -1,7 +1,6 @@
 import cv2
 import imutils
 import camera
-import event
 
 
 class IntruderDetector:
@@ -57,7 +56,6 @@ class IntruderDetector:
             (x, y, w, h) = cv2.boundingRect(c)
             cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
             self.result = True
-            event.get_event_controller().change_event(event.EVENT2)
 
         self.frame = frame
 
