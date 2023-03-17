@@ -11,7 +11,7 @@ Suggest IOT-server: [wss-server](https://github.com/Haozheng-Li/wss-server/blob/
 
 # Documentation
 
-This project's documentation can be found at[client-docs.wssweb.net](https://wss-client.readthedocs.io/en/latest/)
+This project's documentation can be found at [client-docs.wssweb.net](https://wss-client.readthedocs.io/en/latest/)
 
 # Feature
 
