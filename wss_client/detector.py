@@ -1,40 +1,15 @@
 import cv2
 import imutils
-import camera
 
 
-class IntruderDetector:
+class MotionDetector:
     def __init__(self) -> None:
-        self.benchmark_frame = None
-        self.camera = None
         self.result = False
+
+        self.benchmark_frame = None
         self.frame = None
-        self.is_started = False
 
-    def init_camera(self):
-        self.camera = camera.get_csi_camera(0)
-        self.camera.open(0)
-        self.camera.start()
-
-    def show(self):
-        cv2.imshow('Intruder Detector', self.frame)
-        key = cv2.waitKey(1) & 0xFF
-
-    def start(self):
-        self.init_camera()
-        self.is_started = True
-
-    def stop(self):
-        if self.camera:
-            self.camera.release()
-            self.camera = None
-            cv2.destroyAllWindows()
-
-    def frame_delta_detect(self):
-        if not self.is_started or not self.camera:
-            return
-
-        grabbed, frame = self.camera.read(show_time=True)
+    def frame_delta_detect(self, frame):
         frame = imutils.resize(frame, width=500)
 
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -60,4 +35,3 @@ class IntruderDetector:
         self.frame = frame
 
         return self.result, frame
-
