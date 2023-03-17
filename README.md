@@ -6,7 +6,7 @@
 
 wss-client is python IOT client. 
 
-Document: [wss-client.readthedocs.io/en/latest/](https://wss-client.readthedocs.io/en/latest/)
+Document: [client-docs.wssweb.net](https://wss-client.readthedocs.io/en/latest/)
 
 Suggest IOT-server: [wss-server](https://github.com/Haozheng-Li/wss-server/blob/master/README.md)
 
