@@ -4,5 +4,22 @@
 
 # wss-client
 
-wss-client is python client program for [Warehouse Surveillence System (WSS)](https://wssweb.net/). It provides interfaces for data communication with the [WSS](https://wssweb.net/) server, and supports the websocket protocol and the HTTP protocol. wss-client also provides the running performance monitoring function of Raspberry Pi and other hardware, and accepts and executes basic control commands, such as restarting the machine.
+wss-client is python IOT client for [WSS (Warehouse Surveillence System)](https://wssweb.net/). 
+
+Document: [wss-client.readthedocs.io/en/latest/](https://wss-client.readthedocs.io/en/latest/)
+
+Suggest IOT-server: [wss-server](https://github.com/Haozheng-Li/wss-server/blob/master/README.md)
+
+Website: [WSS-Web](https://wssweb.net/)
+
+# Feature
+
+1. Support Websocket protocol data communication interface
+2. Device running performance monitoring
+3. Motion detection
+4. Intruder detection
+5. Low coupling development
+6. Singleton pattern and observer pattern development
+
+
 
