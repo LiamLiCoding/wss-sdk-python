@@ -4,13 +4,14 @@
 
 # wss-client
 
-wss-client is python IOT client. 
-
-Document: [client-docs.wssweb.net](https://wss-client.readthedocs.io/en/latest/)
-
-Suggest IOT-server: [wss-server](https://github.com/Haozheng-Li/wss-server/blob/master/README.md)
+wss-client is multifunctional detection Python IoT client. 
 
 Website: [wssweb.net](https://wssweb.net/)
+Suggest IOT-server: [wss-server](https://github.com/Haozheng-Li/wss-server/blob/master/README.md)
+
+# Documentation
+
+This project's documentation can be found at[client-docs.wssweb.net](https://wss-client.readthedocs.io/en/latest/)
 
 # Feature
 
