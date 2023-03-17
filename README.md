@@ -1,5 +1,6 @@
-![license](https://img.shields.io/github/license/Haozheng-Li/wss-client)
+
 [![Documentation Status](https://readthedocs.org/projects/wss-client/badge/?version=latest)](https://wss-client.readthedocs.io/en/latest/?badge=latest)
+![license](https://img.shields.io/github/license/Haozheng-Li/wss-client)
 
 # wss-client
 
