@@ -9,13 +9,3 @@ Welcome to wss-client's documentation!
    getting_started
    event
 
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-
-..
-    * :ref:`search`
-
