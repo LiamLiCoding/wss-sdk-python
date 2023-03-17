@@ -4,7 +4,7 @@
 
 # wss-client
 
-wss-client is python IOT client for [WSS (Warehouse Surveillence System)](https://wssweb.net/). 
+wss-client is python IOT client. 
 
 Document: [wss-client.readthedocs.io/en/latest/](https://wss-client.readthedocs.io/en/latest/)
 
