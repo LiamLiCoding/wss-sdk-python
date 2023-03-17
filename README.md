@@ -10,7 +10,7 @@ Document: [client-docs.wssweb.net](https://wss-client.readthedocs.io/en/latest/)
 
 Suggest IOT-server: [wss-server](https://github.com/Haozheng-Li/wss-server/blob/master/README.md)
 
-Website: [WSS-Web](https://wssweb.net/)
+Website: [wssweb.net](https://wssweb.net/)
 
 # Feature
 
