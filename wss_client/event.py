@@ -26,6 +26,7 @@ class EventController:
 		for event in self.__event:
 			if event.name == name:
 				return event
+		raise ValueError('Event {} is does not exist'.format(name))
 
 	def register_event_change_signal(self, name, observer):
 		event = self.get_event(name)
