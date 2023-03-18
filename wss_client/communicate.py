@@ -24,7 +24,7 @@ class AsyncWebsocketClient:
     def __init__(self):
         self._websocket_obj = None
         self.url = ''
-        self.running = False
+        self._running = False
         self.connected = False
         self.reconnect_interval = 5
         self._thread = None
@@ -52,7 +52,7 @@ class AsyncWebsocketClient:
                                                                                                 close_msg))
 
     def get_status(self):
-        return self.running
+        return self._running
 
     def stop(self):
         self._websocket_obj.close()
@@ -69,7 +69,7 @@ class AsyncWebsocketClient:
             on_close=self.on_close)
 
         self.url = url
-        self.running = True
+        self._running = True
         self._thread = threading.Thread(target=self._websocket_obj.run_forever)
         self._thread.daemon = True
         self._thread.start()

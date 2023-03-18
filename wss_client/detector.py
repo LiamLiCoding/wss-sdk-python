@@ -1,37 +1,49 @@
+import abc
 import cv2
-import imutils
+import event
 
 
-class MotionDetector:
+class BaseCameraDetector(metaclass=abc.ABCMeta):
     def __init__(self) -> None:
-        self.result = False
+        self.result = None
+        self.event = None
+        self.create_event()
 
-        self.benchmark_frame = None
+    @abc.abstractmethod
+    def create_event(self):
+        pass
+
+    @abc.abstractmethod
+    def detect(self, frame):
+        self.event.set_value(self.result)
+        pass
+
+
+class IntruderDetector(BaseCameraDetector):
+    def __init__(self) -> None:
+        super().__init__()
         self.frame = None
+        self.result = 0
+        self.benchmark_frame = None
+        self.bg_sub_obj = cv2.createBackgroundSubtractorMOG2()
 
-    def frame_delta_detect(self, frame):
-        frame = imutils.resize(frame, width=500)
+    def create_event(self):
+        self.event = event.get_event_controller().create_event('intruder', int)
 
-        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        gray = cv2.GaussianBlur(gray, (21, 21), 0)
+    def detect(self, frame):
+        foreground = cv2.blur(frame, (10, 10))
+        foreground = self.bg_sub_obj.apply(foreground)
+        foreground = cv2.GaussianBlur(foreground, (7, 7), 0)
 
-        if self.benchmark_frame is None:
-            self.benchmark_frame = gray
-            return False, frame
+        contours, hierarchy = cv2.findContours(foreground, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
-        frame_delta = cv2.absdiff(self.benchmark_frame, gray)
-        thresh = cv2.threshold(frame_delta, 25, 255, cv2.THRESH_BINARY)[1]
-
-        thresh = cv2.dilate(thresh, None, iterations=2)
-        counts, _ = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
-        for c in counts:
-            if cv2.contourArea(c) < 500:
-                continue
-            (x, y, w, h) = cv2.boundingRect(c)
-            cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
-            self.result = True
-
+        for contour in contours:
+            x, y, w, h = cv2.boundingRect(contour)
+            if w > 40 and h > 90:
+                cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2, lineType=cv2.LINE_AA)
+                mid_point = (int(x + w / 2.0), int(y + h / 2.0))
+                cv2.circle(frame, mid_point, 3, (255, 0, 255), 6)
+        if self.event:
+            self.event.set_value(self.result)
         self.frame = frame
-
-        return self.result, frame
+        return self.frame

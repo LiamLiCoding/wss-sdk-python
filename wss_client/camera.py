@@ -9,11 +9,11 @@ CAMERAS = []
 
 def get_camera(index=0):
     global CAMERAS
-    if index == 0 and not len(CAMERAS):
+    if not index or not len(CAMERAS) or index < len(CAMERAS) - 1:
         camera = Camera()
         CAMERAS.append(camera)
         return camera
-    elif index < len(CAMERAS) - 1:
+    else:
         return CAMERAS[index]
 
 
@@ -24,9 +24,9 @@ class Camera:
         self.grabbed = False
         self.detectors = []
 
-        self.thread = None
-        self.thread_lock = threading.Lock()
-        self.running = False
+        self._thread = None
+        self._thread_lock = threading.Lock()
+        self.keep_running = False
 
     def open(self, source=0):
         self.video_capture = cv2.VideoCapture(source)
@@ -40,20 +40,23 @@ class Camera:
             raise RuntimeError("Unable to open csi_camera or video source")
 
     def start(self):
-        if self.running:
+        if self.keep_running:
             print('Video capturing is already running')
             return
 
         if self.video_capture:
-            self.running = True
-            self.thread = threading.Thread(target=self.update)
-            self.thread.start()
+            self.keep_running = True
+            self._thread = threading.Thread(target=self.update)
+            self._thread.daemon = True
+            self._thread.start()
+        else:
+            print("Please open camera first")
 
     def stop(self):
-        self.running = False
-        if self.thread:
-            self.thread.join()
-        self.thread = None
+        self.keep_running = False
+        if self._thread:
+            self._thread.join()
+        self._thread = None
 
     def get_open_status(self):
         return self.video_capture.isOpened()
@@ -62,13 +65,13 @@ class Camera:
         return self.video_capture
 
     def update(self):
-        while self.running:
+        while self.keep_running:
             try:
                 grabbed, frame = self.video_capture.read()
                 if self.detectors:
                     for detector in self.detectors:
                         frame = detector.detect(frame)
-                with self.thread_lock:
+                with self._thread_lock:
                     self.grabbed = grabbed
                     self.frame = frame
             except RuntimeError:
@@ -77,7 +80,7 @@ class Camera:
     def read(self, show_time=False):
         frame = []
         if self.grabbed:
-            with self.thread_lock:
+            with self._thread_lock:
                 frame = copy.deepcopy(self.frame)
             if show_time:
                 cv2.putText(frame, datetime.datetime.now().strftime("%A %d %B %Y %I:%M:%S%p"),

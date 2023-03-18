@@ -12,8 +12,10 @@ class EventController:
 	def __init__(self):
 		self.__event = []
 
-	def create_event(self, name, value_type, observer_func):
-		self.__event.append(Event(name, value_type, observer_func))
+	def create_event(self, name, value_type, observer_func=None):
+		event_obj = Event(name, value_type, observer_func)
+		self.__event.append(event_obj)
+		return event_obj
 
 	def change_event(self, name, value):
 		event = self.get_event(name)
