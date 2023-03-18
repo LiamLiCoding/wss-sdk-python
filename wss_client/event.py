@@ -1,12 +1,4 @@
-
-
 EVENT_CONTROLLER = None
-
-NO_EVENT = 0
-EVENT1 = 1
-EVENT2 = 2
-EVENT3 = 3
-EVENT4 = 4
 
 
 def get_event_controller():
@@ -18,25 +10,58 @@ def get_event_controller():
 
 class EventController:
 	def __init__(self):
-		self.__event_signal_observers = []
+		self.__event = []
 
-		self.event = NO_EVENT
+	def create_event(self, name, value_type, observer_func):
+		self.__event.append(Event(name, value_type, observer_func))
 
-	def change_event(self, event):
-		self.event = event
-		if event != self.event:
-			self.emit_event_change_signal()
+	def change_event(self, name, value):
+		event = self.get_event(name)
+		if event:
+			event.set_value(value)
 
-	def get_event(self):
-		return self.event
+	def get_event(self, name):
+		for event in self.__event:
+			if event.name == name:
+				return event
 
-	def register_event_change_signal(self, observer):
-		self.__event_signal_observers.append(observer)
+	def register_event_change_signal(self, name, observer):
+		event = self.get_event(name)
+		if event:
+			event.register_observer(observer)
 
-	def deregister_event_change_signal(self, observer):
-		if observer in self.__event_signal_observers:
-			self.__event_signal_observers.remove(observer)
+	def deregister_event_change_signal(self, name, observer):
+		event = self.get_event(name)
+		if event:
+			event.deregister_observer(observer)
 
-	def emit_event_change_signal(self):
-		for observer in self.__event_signal_observers:
-			observer(self.event)
+
+class Event:
+	def __init__(self, name, value_type, observer_func=None):
+		self.name = name
+		self.value_type = value_type
+		self.value = None
+		self.observer = [observer_func] if observer_func else []
+	
+	def set_value(self, value):
+		if type(value) != self.value_type:
+			raise ValueError('Event type error, event value should be {}'.format(self.value_type))
+		
+		# emit signal
+		if value != self.value:
+			self.value = value
+			for observer in self.observer:
+				observer(self)
+			return True
+		
+		return False
+	
+	def register_observer(self, observer_func):
+		self.observer.append(observer_func)
+	
+	def deregister_observer(self, observer_func):
+		self.observer.remove(observer_func)
+		
+
+
+
