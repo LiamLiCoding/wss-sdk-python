@@ -4,24 +4,25 @@ import threading
 import datetime
 
 
-CSI_CAMERAS = []
+CAMERAS = []
 
 
-def get_csi_camera(index=0):
-    global CSI_CAMERAS
-    if index == 0 and not len(CSI_CAMERAS):
-        camera = CSICamera()
-        CSI_CAMERAS.append(camera)
+def get_camera(index=0):
+    global CAMERAS
+    if index == 0 and not len(CAMERAS):
+        camera = Camera()
+        CAMERAS.append(camera)
         return camera
-    elif index < len(CSI_CAMERAS) - 1:
-        return CSI_CAMERAS[index]
+    elif index < len(CAMERAS) - 1:
+        return CAMERAS[index]
 
 
-class CSICamera:
+class Camera:
     def __init__(self) -> None:
         self.video_capture = None
         self.frame = None
         self.grabbed = False
+        self.detectors = []
 
         self.thread = None
         self.thread_lock = threading.Lock()
@@ -64,6 +65,9 @@ class CSICamera:
         while self.running:
             try:
                 grabbed, frame = self.video_capture.read()
+                if self.detectors:
+                    for detector in self.detectors:
+                        frame = detector.detect(frame)
                 with self.thread_lock:
                     self.grabbed = grabbed
                     self.frame = frame
@@ -85,5 +89,8 @@ class CSICamera:
         if self.video_capture:
             self.video_capture.release()
             self.video_capture = None
+    
+    def enable_detector(self, detector):
+        self.detectors.append(detector)
 
 
