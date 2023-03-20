@@ -33,13 +33,15 @@ class Camera:
 
         if self.video_capture and self.get_open_status():
             self.grabbed, self.frame = self.video_capture.read()
+            return self.grabbed
         else:
             self.video_capture = None
             self.frame = None
             self.grabbed = False
             raise RuntimeError("Unable to open csi_camera or video source")
 
-    def start(self):
+    def start(self, source=0):
+        self.open(source)
         if self.keep_running:
             print('Video capturing is already running')
             return
