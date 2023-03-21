@@ -8,6 +8,7 @@ __all__ = ['CloseRangeIntruderDetector', 'LongDistanceIntruderDetector']
 
 class BaseCameraDetector(metaclass=abc.ABCMeta):
     def __init__(self) -> None:
+        self.frame = None
         self.result = None
         self.event = None
         self.create_event()
@@ -26,8 +27,6 @@ class CloseRangeIntruderDetector(BaseCameraDetector):
     def __init__(self) -> None:
         super().__init__()
         self.ori_frame = None
-        self.frame = None
-        self.result = {}
         self.benchmark_frame = None
         self.bg_sub_obj = cv2.createBackgroundSubtractorMOG2(history=200, detectShadows=False)
 
@@ -49,26 +48,29 @@ class CloseRangeIntruderDetector(BaseCameraDetector):
                 cv2.circle(frame, mid_point, 3, (255, 0, 255), 6)
 
         if self.event:
-            self.event.set_value({'event_id':1})
+            self.event.set_value({'event_id': 1})
         self.frame = frame
-        return self.frame
+        return foreground_mask
 
 
 class LongDistanceIntruderDetector(BaseCameraDetector):
+    INTRUDER_EVENT1 = 1
+    INTRUDER_EVENT2 = 2
+    INTRUDER_EVENT3 = 3
+    INTRUDER_EVENT4 = 4
+
     def __init__(self) -> None:
         super().__init__()
         self.ori_frame = None
-        self.frame = None
-        self.result = {}
         self.benchmark_frame = None
-        self.bg_sub_obj = cv2.createBackgroundSubtractorMOG2(history=200, detectShadows=False)
+        self.bg_sub_obj = cv2.createBackgroundSubtractorMOG2(history=400, varThreshold=30, detectShadows=False)
 
     def create_event(self):
         self.event = event.get_event_controller().create_event('intruder', dict)
 
     def detect(self, frame):
-        self.ori_frame = frame
-        foreground_mask = self.bg_sub_obj.apply(frame)
+        frame_copy = frame.copy()
+        foreground_mask = self.bg_sub_obj.apply(frame_copy)
         foreground_mask = cv2.GaussianBlur(foreground_mask, (7, 7), 0)
         contours, hierarchy = cv2.findContours(foreground_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
@@ -80,6 +82,6 @@ class LongDistanceIntruderDetector(BaseCameraDetector):
                 cv2.circle(frame, mid_point, 3, (255, 0, 255), 6)
 
         if self.event:
-            self.event.set_value({'event_id':1})
+            self.event.set_value({'event_id': self.INTRUDER_EVENT1, 'data': None})
         self.frame = frame
-        return self.frame
+        return frame
