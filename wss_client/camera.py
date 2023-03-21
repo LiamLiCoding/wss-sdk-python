@@ -5,17 +5,17 @@ import datetime
 import time
 
 
-CAMERAS = []
+g_CAMERAS = []
 
 
 def get_camera(index=0):
-    global CAMERAS
-    if not index or not len(CAMERAS) or index < len(CAMERAS) - 1:
+    global g_CAMERAS
+    if not index or not len(g_CAMERAS) or index < len(g_CAMERAS) - 1:
         camera = Camera(index)
-        CAMERAS.append(camera)
+        g_CAMERAS.append(camera)
         return camera
     else:
-        return CAMERAS[index]
+        return g_CAMERAS[index]
 
 
 class Camera:

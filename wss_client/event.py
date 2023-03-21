@@ -1,11 +1,11 @@
-EVENT_CONTROLLER = None
+g_EVENT_CONTROLLER = None
 
 
 def get_event_controller():
-	global EVENT_CONTROLLER
-	if not EVENT_CONTROLLER:
-		EVENT_CONTROLLER = EventController()
-	return EVENT_CONTROLLER
+	global g_EVENT_CONTROLLER
+	if not g_EVENT_CONTROLLER:
+		g_EVENT_CONTROLLER = EventController()
+	return g_EVENT_CONTROLLER
 
 
 class EventController:
