@@ -7,6 +7,9 @@ import time
 
 g_CAMERAS = []
 
+# Color define
+RED = (0, 0, 255)
+
 
 def get_camera(index=0):
     global g_CAMERAS
@@ -31,7 +34,6 @@ class Camera:
         self._thread_lock = threading.Lock()
         self._show_thread = None
         self.keep_running = False
-        self.fps = 0
         self.frame_counter = 0
         self.start_time = None
         self.show_time = False
@@ -42,7 +44,6 @@ class Camera:
 
         if self.video_capture and self.get_open_status():
             self.grabbed, self.frame = self.video_capture.read()
-            self.fps = self.video_capture.get(cv2.CAP_PROP_FPS)
             return self.grabbed
         else:
             self.video_capture = None
@@ -81,6 +82,10 @@ class Camera:
         while self.keep_running:
             try:
                 grabbed, frame = self.video_capture.read()
+                if not grabbed:
+                    print("Video source reached its end.")
+                    self.stop()
+                    return
                 self.frame_counter += 1
                 if self.detectors:
                     for detector in self.detectors:
@@ -97,11 +102,13 @@ class Camera:
             with self._thread_lock:
                 frame = copy.deepcopy(self.frame)
             if show_time:
-                cv2.putText(frame, datetime.datetime.now().strftime("%A %d %B %Y %I:%M:%S%p"),
-                            (10, frame.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.35, (0, 0, 255), 1)
-            if show_fps and self.fps:
-                cv2.putText(frame, "FPS {0}".format(float('%.1f' % (self.frame_counter / (time.time() - self.start_time)))),
-                            (10, frame.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.35, (0, 0, 255), 1)
+                time_text = datetime.datetime.now().strftime("%A %d %B %Y %I:%M:%S")
+                cv2.putText(frame, time_text, (10, 50),
+                            cv2.FONT_HERSHEY_PLAIN, 2, RED, thickness=1)
+            if show_fps:
+                fps_text = "FPS {:.1f}".format(self.frame_counter / (time.time() - self.start_time))
+                cv2.putText(frame, fps_text, (10, frame.shape[0] - 10),
+                            cv2.FONT_HERSHEY_PLAIN, 2, RED, thickness=1)
         return self.grabbed, frame
 
     def release(self):
@@ -118,7 +125,7 @@ class Camera:
         self._show_thread.start()
 
     def _show_result(self, show_time, show_fps):
-        while True:
+        while self.keep_running:
             _, frame = self.read(show_time, show_fps)
             cv2.imshow('Camera {}'.format(self.camera_id), frame)
             key = cv2.waitKey(1) & 0xff
