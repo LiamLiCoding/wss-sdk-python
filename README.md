@@ -14,6 +14,12 @@ Suggest IOT-server: [wss-server](https://github.com/Haozheng-Li/wss-server/blob/
 
 This project's documentation can be found at [client-docs.wssweb.net](https://wss-client.readthedocs.io/en/latest/)
 
+# Detector
+
+1. Intruder detector
+![wss-client](https://user-images.githubusercontent.com/47854126/226759469-03a5298d-5d87-4071-a4b4-0d1687ab1c18.png)
+
+
 # Feature
 
 1. Support Websocket protocol data communication interface
