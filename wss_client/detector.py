@@ -3,6 +3,9 @@ import cv2
 import event
 
 
+__all__ = ['IntruderDetector']
+
+
 class BaseCameraDetector(metaclass=abc.ABCMeta):
     def __init__(self) -> None:
         self.result = None

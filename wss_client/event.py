@@ -49,8 +49,7 @@ class Event:
 	def set_value(self, value):
 		if type(value) != self.value_type:
 			raise ValueError('Event type error, event value should be {}'.format(self.value_type))
-		
-		# emit signal
+
 		if value != self.value:
 			self.value = value
 			for observer in self.observer:
