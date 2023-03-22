@@ -27,20 +27,23 @@ class Camera:
         self.video_capture = None
         self.frame = None
         self.grabbed = False
+
         self.detectors = []
-        self.show_status = False
 
         self._thread = None
         self._thread_lock = threading.Lock()
         self._show_thread = None
+
         self.keep_running = False
         self.frame_counter = 0
         self.start_time = None
+
         self.show_time = False
         self.show_fps = False
 
     def open(self, source=0):
         self.video_capture = cv2.VideoCapture(source)
+        self.set_detector_video_param()
 
         if self.video_capture and self.get_open_status():
             self.grabbed, self.frame = self.video_capture.read()
@@ -71,6 +74,13 @@ class Camera:
         if self._thread:
             self._thread.join()
         self._thread = None
+
+    def set_detector_video_param(self):
+        if self.detectors and self.video_capture:
+            for detector in self.detectors:
+                detector.set_video_param(width=int(self.video_capture.get(cv2.CAP_PROP_FRAME_WIDTH)),
+                                         height=int(self.video_capture.get(cv2.CAP_PROP_FRAME_HEIGHT)),
+                                         fps=int(self.video_capture.get(cv2.CAP_PROP_FPS)))
 
     def get_open_status(self):
         return self.video_capture.isOpened()
