@@ -62,11 +62,6 @@ class CloseRangeIntruderDetector(BaseCameraDetector):
         self.frame = frame
         return foreground_mask
 
-    def set_video_param(self, width, height, fps):
-        self.width = 0
-        self.height = 0
-        self.fps = 0
-
 
 class LongDistanceIntruderDetector(BaseCameraDetector):
     INTRUDER_EVENT1 = 1
