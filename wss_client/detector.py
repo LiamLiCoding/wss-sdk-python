@@ -3,7 +3,7 @@ import cv2
 import event
 import datetime
 
-__all__ = ['CloseRangeIntruderDetector', 'LongDistanceIntruderDetector']
+__all__ = ['IntruderDetector']
 
 
 class BaseCameraDetector(metaclass=abc.ABCMeta):
@@ -32,38 +32,13 @@ class BaseCameraDetector(metaclass=abc.ABCMeta):
         self.height = height
         self.fps = fps
 
-
-class CloseRangeIntruderDetector(BaseCameraDetector):
-    def __init__(self) -> None:
-        super().__init__()
-        self.ori_frame = None
-        self.benchmark_frame = None
-        self.bg_sub = cv2.createBackgroundSubtractorMOG2(history=200, detectShadows=False)
-
-    def create_event(self):
-        self.event = event.get_event_controller().create_event('intruder', dict)
-
-    def detect(self, frame):
-        self.ori_frame = frame
-        # frame = cv2.blur(frame, (10, 10))
-        foreground_mask = self.bg_sub.apply(frame)
-        foreground_mask = cv2.GaussianBlur(foreground_mask, (7, 7), 0)
-        contours, hierarchy = cv2.findContours(foreground_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
-        for contour in contours:
-            x, y, w, h = cv2.boundingRect(contour)
-            if w > 40 and h > 90:
-                cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2, lineType=cv2.LINE_AA)
-                mid_point = (int(x + w / 2.0), int(y + h / 2.0))
-                cv2.circle(frame, mid_point, 3, (255, 0, 255), 6)
-
-        if self.event:
-            self.event.set_value({'event_id': 1})
-        self.frame = frame
-        return foreground_mask
+    @staticmethod
+    def get_frame_area(frame):
+        height, width, channels = frame.shape
+        return height * width
 
 
-class LongDistanceIntruderDetector(BaseCameraDetector):
+class IntruderDetector(BaseCameraDetector):
     INTRUDER_EVENT1 = 1
     INTRUDER_EVENT2 = 2
     INTRUDER_EVENT3 = 3
@@ -88,22 +63,12 @@ class LongDistanceIntruderDetector(BaseCameraDetector):
     def create_event(self):
         self.event = event.get_event_controller().create_event('intruder', dict)
 
-    def set_video_param(self, width, height, fps):
-        self.width = width
-        self.height = height
-        self.fps = fps
-
-    def get_frame_area(self, frame):
-        height, width, channels = frame.shape
-        return height * width
-
     def detect(self, frame):
         self.frame_counter += 1
         frame_copy = frame.copy()
         frame_copy = cv2.GaussianBlur(frame_copy, (11, 11), 0)
         foreground_mask = self.bg_sub.apply(frame_copy)
 
-        # Apply a threshold to the foreground mask to create a binary image
         _, thresh = cv2.threshold(foreground_mask, 127, 255, cv2.THRESH_BINARY)
 
         cleaned = cv2.GaussianBlur(thresh, (9, 9), 0)
@@ -126,13 +91,14 @@ class LongDistanceIntruderDetector(BaseCameraDetector):
             self.set_event(self.INTRUDER_EVENT2, frame)
 
         roi_area = w * h
-        if self.prev_roi_area and not self.frame_counter % self.fps:
+        if self.prev_roi_area and not self.frame_counter % self.fps:  # Detect per second
             if int((roi_area - self.prev_roi_area) / self.prev_roi_area * 100) > 10:
                 self.detect_counter += 1
 
-        if self.detect_counter > 2 and self.status == self.INTRUDER_EVENT2:
+        if self.detect_counter > 2 and self.status == self.INTRUDER_EVENT2:  # At lease last for 2 seconds
             self.set_event(self.INTRUDER_EVENT3, frame)
-        if self.detect_counter > 5:
+
+        if self.detect_counter > 5:  # At lease last for 5 seconds
             self.set_event(self.INTRUDER_EVENT4, frame)
 
         if not self.frame_counter % (self.fps + 1):
