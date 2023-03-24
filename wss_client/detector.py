@@ -104,6 +104,9 @@ class IntruderDetector(BaseCameraDetector):
         if not self.frame_counter % (self.fps + 1):
             self.prev_roi_area = roi_area
 
+        cv2.putText(frame, 'Event {}'.format(self.status), (10, 100), cv2.FONT_HERSHEY_PLAIN, 3,
+                    (0, 0, 255), thickness=2)
+
         self.frame = frame
         return frame
     
