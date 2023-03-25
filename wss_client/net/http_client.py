@@ -1,7 +1,7 @@
 import time
 
 
-class AsyncHttpClient:
+class HttpClient:
     def __init__(self, device_key):
         self.m_device_key = device_key
 
