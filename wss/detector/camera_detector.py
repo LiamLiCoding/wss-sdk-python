@@ -1,6 +1,6 @@
 import abc
 import cv2
-import event
+from core import event
 import datetime
 
 __all__ = ['IntruderDetector']

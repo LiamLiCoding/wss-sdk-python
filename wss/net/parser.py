@@ -1,4 +1,4 @@
-from .. import operation
+from device import operation
 
 
 def restart():
