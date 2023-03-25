@@ -20,5 +20,3 @@ class AuthenticationException(ConnectionException):
 
     def __str__(self):
         return "Unsupported authentication method: %s" % self.message
-
-
