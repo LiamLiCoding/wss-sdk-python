@@ -1,7 +1,10 @@
 import json
-import threading
 import time
+import threading
 import websocket
+
+
+__all__ = ['get_websocket_client', 'websock_send']
 
 
 g_WEBSOCKET_CLIENT = None
@@ -22,11 +25,14 @@ def websock_send(message, message_type):
 
 class AsyncWebsocketClient:
     def __init__(self):
-        self._websocket_obj = None
         self.url = ''
-        self._running = False
         self.connected = False
         self.reconnect_interval = 5
+
+        self._websocket_obj = None
+        self._message_event = None
+        self._running = False
+
         self._thread = None
         self._thread_lock = threading.Lock()
 
@@ -71,7 +77,6 @@ class AsyncWebsocketClient:
         self.url = url
         self._running = True
         self._thread = threading.Thread(target=self._websocket_obj.run_forever)
-        self._thread.daemon = True
         self._thread.start()
 
     def send(self, message, message_type):
@@ -90,16 +95,5 @@ class AsyncWebsocketClient:
         self.start(self.url)
 
 
-class AsyncHttpClient:
-    def __init__(self, device_key):
-        self.m_device_key = device_key
 
-    @staticmethod
-    def get_timestamp():
-        millis = int(round(time.time() * 1000))
-        return millis
-
-    # TODO: HTTP client is still developing
-    def send(self):
-        pass
 

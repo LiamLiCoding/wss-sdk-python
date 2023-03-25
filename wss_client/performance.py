@@ -1,6 +1,6 @@
 import psutil
 import threading
-import communicate
+import net
 
 g_PERFORMANCE_MONITOR = None
 
@@ -67,7 +67,7 @@ class PerformanceMonitor:
 			self.m_disk_io_write = psutil.disk_io_counters().write_bytes
 
 			if self.m_enable_upload:
-				communicate.websock_send(self.get_dynamic_info(), 'running_performance')
+				net.websock_send(self.get_dynamic_info(), 'running_performance')
 		if self.m_running:
 			self.start()
 
