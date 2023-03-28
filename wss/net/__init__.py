@@ -1,1 +1,1 @@
-from websocket_client import *
+from wss.net.net_client import *

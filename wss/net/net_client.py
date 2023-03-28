@@ -4,33 +4,17 @@ import threading
 import websocket
 
 
-__all__ = ['get_websocket_client', 'websock_send']
-
-
-g_WEBSOCKET_CLIENT = None
-
-
-def get_websocket_client():
-    global g_WEBSOCKET_CLIENT
-    if not g_WEBSOCKET_CLIENT:
-        g_WEBSOCKET_CLIENT = AsyncWebsocketClient()
-    return g_WEBSOCKET_CLIENT
-
-
-def websock_send(message, message_type):
-    if not get_websocket_client().get_status():
-        raise RuntimeError('Please start websocket client first')
-    get_websocket_client().send(message, message_type)
+__all__ = ['AsyncWebsocketClient']
 
 
 class AsyncWebsocketClient:
-    def __init__(self):
-        self.url = ''
+    def __init__(self, url):
+        self.url = url
         self.connected = False
         self.reconnect_interval = 5
 
         self._websocket_obj = None
-        self._message_event = None
+        self._message_callback = None
         self._running = False
 
         self._thread = None
@@ -38,6 +22,8 @@ class AsyncWebsocketClient:
 
     def on_message(self, ws_obj, message):
         self.connected = True
+        if self._message_callback:
+            self._message_callback(message)
         print("AsyncWebsocketClient: Received message：{}".format(message))
 
     def on_error(self, ws_obj, error):
@@ -57,6 +43,9 @@ class AsyncWebsocketClient:
         print('AsyncWebsocketClient: Connection closed, close code:{}, close message:{}'.format(close_status_code,
                                                                                                 close_msg))
 
+    def register_message_callback(self, func):
+        self._message_callback = func
+
     def get_status(self):
         return self._running
 
@@ -66,15 +55,14 @@ class AsyncWebsocketClient:
             self._thread.join()
             self._thread = None
 
-    def start(self, url):
+    def start(self):
         self._websocket_obj = websocket.WebSocketApp(
-            url=url,
+            url=self.url,
             on_error=self.on_error,
             on_open=self.on_open,
             on_message=self.on_message,
             on_close=self.on_close)
 
-        self.url = url
         self._running = True
         self._thread = threading.Thread(target=self._websocket_obj.run_forever)
         self._thread.start()
@@ -92,7 +80,7 @@ class AsyncWebsocketClient:
         self._websocket_obj.close()
         time.sleep(self.reconnect_interval)
         print("AsyncWebsocketClient: Reconnect ....")
-        self.start(self.url)
+        self.start()
 
 
 
