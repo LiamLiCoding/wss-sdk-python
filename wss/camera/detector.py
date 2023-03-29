@@ -1,4 +1,5 @@
 import abc
+import os
 import cv2
 import datetime
 
@@ -48,7 +49,7 @@ class IntruderDetector(BaseCameraDetector):
 	INTRUDER_EVENT3 = 3
 	INTRUDER_EVENT4 = 4
 
-	def __init__(self) -> None:
+	def __init__(self, save_path='') -> None:
 		super().__init__()
 		self.ori_frame = None
 		self.benchmark_frame = None
@@ -57,6 +58,8 @@ class IntruderDetector(BaseCameraDetector):
 		self.result = {'intruder_type': self.INTRUDER_EVENT1, 'path': ''}
 		self.status = self.INTRUDER_EVENT1
 
+		self.save_path = save_path
+
 		self.prev_roi_area = 0
 		self.frame_counter = 0
 		self.detect_counter = 0
@@ -64,6 +67,13 @@ class IntruderDetector(BaseCameraDetector):
 
 		self.video_output_writer = None
 		self.video_output_path = ''
+
+		self.check_path_validity()
+
+	def check_path_validity(self):
+		if not os.path.exists(self.save_path):
+			print("Detector save path do not exist, create directory now.")
+			os.mkdir(self.save_path)
 
 	def detect(self, frame):
 		self.frame_counter += 1
@@ -116,26 +126,28 @@ class IntruderDetector(BaseCameraDetector):
 		if event_type == self.INTRUDER_EVENT1:
 			if self.status == self.INTRUDER_EVENT4:
 				self.result = {'intruder_type': event_type, 'path': self.video_output_path}
+				self.on_result_change()
 				self.video_output_writer.release()
 				self.video_output_writer = None
 				self.detect_counter = 0
 				self.not_detect_counter = 0
 
 		if event_type == self.INTRUDER_EVENT2:
-			output_path = 'output/event2_{}.jpg'.format(datetime.datetime.now().strftime("%I-%M-%S"))
+			output_path = '{}/event2_{}.jpg'.format(self.save_path, datetime.datetime.now().strftime("%I-%M-%S"))
 			cv2.imwrite(output_path, frame)
 			self.result = {'intruder_type': event_type, 'path': output_path}
+			self.on_result_change()
 
 		elif event_type == self.INTRUDER_EVENT3:
-			output_path = 'output/event3_{}.jpg'.format(datetime.datetime.now().strftime("%I-%M-%S"))
+			output_path = '{}/event3_{}.jpg'.format(self.save_path, datetime.datetime.now().strftime("%I-%M-%S"))
 			cv2.imwrite(output_path, frame)
 			self.result = {'intruder_type': event_type, 'path': output_path}
+			self.on_result_change()
 
 		elif event_type == self.INTRUDER_EVENT4:
-			self.video_output_path = 'output/event4_{}.avi'.format(datetime.datetime.now().strftime("%I-%M-%S"))
+			self.video_output_path = '{}/event4_{}.avi'.format(self.save_path, datetime.datetime.now().strftime("%I-%M-%S"))
 			if not self.video_output_writer:
 				self.video_output_writer = cv2.VideoWriter(self.video_output_path, cv2.VideoWriter_fourcc(*'XVID'),
 				                                           self.fps, (self.width, self.height))
 			self.video_output_writer.write(frame)
 		self.status = event_type
-
