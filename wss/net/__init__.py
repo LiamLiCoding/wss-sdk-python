@@ -1,1 +1,1 @@
-from wss.net.net_client import *
+from wss.net.client import AsyncWebsocketClient

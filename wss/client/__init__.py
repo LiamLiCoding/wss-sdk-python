@@ -1,1 +1,1 @@
-from wss.client.intruder_detect_client import *
+from wss.client.detect_client import IntruderDetectClient

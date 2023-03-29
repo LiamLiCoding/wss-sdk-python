@@ -1,5 +1,4 @@
 import camera
-import detector
 import subprocess
 
 """

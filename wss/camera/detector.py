@@ -1,6 +1,5 @@
 import abc
 import cv2
-from core import event
 import datetime
 
 __all__ = ['IntruderDetector']
@@ -138,6 +137,5 @@ class IntruderDetector(BaseCameraDetector):
 				self.video_output_writer = cv2.VideoWriter(self.video_output_path, cv2.VideoWriter_fourcc(*'XVID'),
 				                                           self.fps, (self.width, self.height))
 			self.video_output_writer.write(frame)
-
 		self.status = event_type
 

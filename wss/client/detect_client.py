@@ -7,7 +7,6 @@ __all__ = ['IntruderDetectClient']
 
 
 class IntruderDetectClient(AsyncWebsocketClient):
-
     def __init__(self, url):
         AsyncWebsocketClient.__init__(self, url)
         self.camera = CSICamera(0)
@@ -27,12 +26,3 @@ class IntruderDetectClient(AsyncWebsocketClient):
 
     def on_detect_event(self, event):
         print(event)
-
-
-if __name__ == '__main__':
-    API_KEY = '1111'
-    WEBSOCKET_URL = "wss://wssweb.net/ws/device/{api_key}"
-
-    client = IntruderDetectClient(url=WEBSOCKET_URL.format(api_key=API_KEY))
-    client.start()
-
