@@ -1,5 +1,4 @@
 import base64
-import subprocess
 from device import profiler
 from camera import CSICamera
 from camera.detector import IntruderDetector
@@ -30,29 +29,33 @@ class IntruderDetectClient(AsyncWebsocketClient):
         self.camera.start(source=source)
         self.camera.show()
 
-    def enable_detection(self, operation):
+    def enable_detection(self, operation, feedback=True):
         if operation == 'enable':
             self.camera.start()
         else:
             self.camera.stop()
 
         print(operation + ' detection')
-        self.send({'operation_type': 'intruder_detection', 'operation': operation}, message_type='operation_feedback')
+        if feedback:
+            self.send({'operation_type': 'intruder_detection', 'operation': operation}, message_type='operation_feedback')
 
-    def enable_profiler(self, operation):
+    def enable_profiler(self, operation, feedback=True):
         if operation == 'enable':
             self.profiler.start()
         else:
             self.profiler.stop()
 
         print(operation + ' profiler')
-        self.send({'operation_type': 'profiler', 'operation': operation}, message_type='operation_feedback')
+        if feedback:
+            self.send({'operation_type': 'profiler', 'operation': operation}, message_type='operation_feedback')
 
     def on_receive_message(self, data):
         message = data.get('message', '')
         message_type = data.get('message_type', '')
 
-        if message_type == 'operation':
+        if message_type == 'init':
+            self.on_init_message(message)
+        elif message_type == 'operation':
             self.on_operation_message(message)
 
     def on_detect_event_change(self, data):
@@ -66,6 +69,15 @@ class IntruderDetectClient(AsyncWebsocketClient):
                 image_data = base64.b64encode(f.read()).decode("utf-8")
                 message['data_file'] = image_data
             self.send(message=message, message_type='detect_event')
+
+    def on_init_message(self, message):
+        operation = message.get('operation', '')
+        operation_type = message.get('operation_type', '')
+
+        if operation_type == 'profiler':
+            self.enable_profiler(operation, feedback=False)
+        elif operation_type == 'intruder_detection':
+            self.enable_detection(operation, feedback=False)
 
     def on_operation_message(self, message):
         operation = message.get('operation', '')
