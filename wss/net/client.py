@@ -37,10 +37,10 @@ class AsyncWebsocketClient:
                                                                                                 close_msg))
 
     def on_message(self, ws_obj, message):
+        print("AsyncWebsocketClient: Received message：{}".format(message))
         self.connected = True
         if self._message_callback:
-            self._message_callback(message)
-        print("AsyncWebsocketClient: Received message：{}".format(message))
+            self._message_callback(json.loads(message))
 
     def on_error(self, ws_obj, error):
         self.connected = False
@@ -101,6 +101,7 @@ class AsyncWebsocketClient:
             message = self._message_queue.get()
             try:
                 self._ws.send(message)
+                print('AsyncWebsocketClient - Send message {}'.format(message))
             except websocket.WebSocketConnectionClosedException:
                 print('AsyncWebsocketClient: Send messages failed, connection is closed')
             except Exception as ee:

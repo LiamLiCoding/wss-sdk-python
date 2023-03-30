@@ -2,17 +2,8 @@ import psutil
 import threading
 import net
 
-g_PERFORMANCE_MONITOR = None
 
-
-def get_performance_monitor():
-	global g_PERFORMANCE_MONITOR
-	if not g_PERFORMANCE_MONITOR:
-		g_PERFORMANCE_MONITOR = PerformanceMonitor()
-	return g_PERFORMANCE_MONITOR
-
-
-class PerformanceMonitor:
+class Profiler:
 	def __init__(self):
 		self.m_cpu_used_rate = 0
 		self.m_mem_used_rate = 0
@@ -30,6 +21,11 @@ class PerformanceMonitor:
 		self.m_running = False
 		self.m_enable_upload = True
 
+		self.callbacks = []
+
+	def register_callback(self, func):
+		self.callbacks.append(func)
+
 	def get_static_info(self):
 		self.m_cpu_count = psutil.cpu_count()
 		self.m_disk_usage = psutil.disk_usage('/').percent
@@ -45,9 +41,6 @@ class PerformanceMonitor:
 		        'mem_used_rate': self.m_mem_used_rate,
 		        'disk_io_read': self.m_disk_io_read,
 		        'disk_io_write': self.m_disk_io_write}
-
-	def register_callback(self, event, func):
-		pass
 
 	def set_interval(self, interval):
 		self.m_interval = interval
@@ -66,8 +59,9 @@ class PerformanceMonitor:
 			self.m_disk_io_read = psutil.disk_io_counters().read_bytes
 			self.m_disk_io_write = psutil.disk_io_counters().write_bytes
 
-			if self.m_enable_upload:
-				net.websock_send(self.get_dynamic_info(), 'running_performance')
+			for each_func in self.callbacks:
+				each_func(self.get_dynamic_info())
+
 		if self.m_running:
 			self.start()
 
