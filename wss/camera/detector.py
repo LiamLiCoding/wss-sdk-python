@@ -88,6 +88,9 @@ class IntruderDetector(BaseCameraDetector):
 
 		max_contour = max(contours, key=cv2.contourArea)
 
+		if not max_contour:
+			return frame
+
 		if cv2.contourArea(max_contour) < 1200 or (cv2.contourArea(max_contour) / self.get_frame_area(frame)) > 0.6:
 			self.not_detect_counter += 1
 			if self.not_detect_counter > self.fps * 5:
