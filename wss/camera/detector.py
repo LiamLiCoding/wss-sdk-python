@@ -86,10 +86,10 @@ class IntruderDetector(BaseCameraDetector):
 		cleaned = cv2.GaussianBlur(thresh, (9, 9), 0)
 		contours, hierarchy = cv2.findContours(cleaned, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
-		max_contour = max(contours, key=cv2.contourArea)
-
-		if not max_contour:
+		if not contours:
 			return frame
+
+		max_contour = max(contours, key=cv2.contourArea)
 
 		if cv2.contourArea(max_contour) < 1200 or (cv2.contourArea(max_contour) / self.get_frame_area(frame)) > 0.6:
 			self.not_detect_counter += 1
@@ -113,7 +113,7 @@ class IntruderDetector(BaseCameraDetector):
 		if self.detect_counter > 2 and self.status == self.INTRUDER_EVENT2:  # At lease last for 2 seconds
 			self.set_event(self.INTRUDER_EVENT3, frame)
 
-		if self.detect_counter > 5:  # At lease last for 5 seconds
+		if self.detect_counter > 4:  # At lease last for 5 seconds
 			self.set_event(self.INTRUDER_EVENT4, frame)
 
 		if not self.frame_counter % (self.fps + 1):
@@ -128,12 +128,13 @@ class IntruderDetector(BaseCameraDetector):
 	def set_event(self, event_type, frame):
 		if event_type == self.INTRUDER_EVENT1:
 			if self.status == self.INTRUDER_EVENT4:
-				self.result = {'intruder_type': event_type, 'path': self.video_output_path}
+				self.result = {'intruder_type': self.INTRUDER_EVENT4, 'path': self.video_output_path}
 				self.on_result_change()
 				self.video_output_writer.release()
 				self.video_output_writer = None
 				self.detect_counter = 0
 				self.not_detect_counter = 0
+				self.video_output_path = ''
 
 		if event_type == self.INTRUDER_EVENT2:
 			output_path = '{}/event2_{}.jpg'.format(self.save_path, datetime.datetime.now().strftime("%I-%M-%S"))
@@ -148,7 +149,8 @@ class IntruderDetector(BaseCameraDetector):
 			self.on_result_change()
 
 		elif event_type == self.INTRUDER_EVENT4:
-			self.video_output_path = '{}/event4_{}.avi'.format(self.save_path, datetime.datetime.now().strftime("%I-%M-%S"))
+			if not self.video_output_path:
+				self.video_output_path = '{}/event4_{}.avi'.format(self.save_path, datetime.datetime.now().strftime("%I-%M-%S"))
 			if not self.video_output_writer:
 				self.video_output_writer = cv2.VideoWriter(self.video_output_path, cv2.VideoWriter_fourcc(*'XVID'),
 				                                           self.fps, (self.width, self.height))

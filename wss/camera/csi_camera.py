@@ -3,6 +3,7 @@ import copy
 import threading
 import datetime
 import time
+import platform
 
 
 __all__ = ['CSICamera']
@@ -118,6 +119,9 @@ class CSICamera:
 		self.detectors.append(detector)
 
 	def show(self, show_time=False, show_fps=False):
+		if platform.system() in ('Darwin', 'Linux'):
+			print("Show should be in main thread")
+			return
 		self._show_thread = threading.Thread(target=self._show_result, args=(show_time, show_fps))
 		self._show_thread.start()
 
