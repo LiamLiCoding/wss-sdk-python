@@ -70,6 +70,8 @@ class IntruderDetector(BaseCameraDetector):
 
 		self.check_path_validity()
 
+		self.face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+
 	def check_path_validity(self):
 		if not os.path.exists(self.save_path):
 			print("Detector save path do not exist, create directory now.")
@@ -138,12 +140,14 @@ class IntruderDetector(BaseCameraDetector):
 
 		if event_type == self.INTRUDER_EVENT2:
 			output_path = '{}/event2_{}.jpg'.format(self.save_path, datetime.datetime.now().strftime("%I-%M-%S"))
+			frame = self.human_detect(frame)
 			cv2.imwrite(output_path, frame)
 			self.result = {'intruder_type': event_type, 'path': output_path}
 			self.on_result_change()
 
 		elif event_type == self.INTRUDER_EVENT3:
 			output_path = '{}/event3_{}.jpg'.format(self.save_path, datetime.datetime.now().strftime("%I-%M-%S"))
+			frame = self.human_detect(frame)
 			cv2.imwrite(output_path, frame)
 			self.result = {'intruder_type': event_type, 'path': output_path}
 			self.on_result_change()
@@ -156,3 +160,21 @@ class IntruderDetector(BaseCameraDetector):
 				                                           self.fps, (self.width, self.height))
 			self.video_output_writer.write(frame)
 		self.status = event_type
+
+	def human_detect(self, frame):
+		gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+		# Detect faces in the image
+		faces = self.face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30),
+											  flags=cv2.CASCADE_SCALE_IMAGE)
+
+		if len(faces) > 0:
+			print("Human detected.")
+		else:
+			print("No human detected.")
+
+		# Draw rectangles around detected faces
+		for (x, y, w, h) in faces:
+			cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
+
+		return frame

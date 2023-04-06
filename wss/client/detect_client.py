@@ -1,3 +1,4 @@
+import cv2
 import base64
 from device import profiler
 from camera import CSICamera
@@ -16,6 +17,8 @@ class IntruderDetectClient(AsyncWebsocketClient):
         self.camera_detector = IntruderDetector(save_path='output')
         self.camera_detector.register_callback(self.on_detect_event_change)
         self.camera.enable_detector(self.camera_detector)
+
+        self._accept_operation_command = False
         
         self.profiler = profiler.Profiler()
         self.profiler.register_callback(self.on_profiler_update)
@@ -80,6 +83,9 @@ class IntruderDetectClient(AsyncWebsocketClient):
             self.enable_detection(operation, feedback=False)
 
     def on_operation_message(self, message):
+        if not self._accept_operation_command:
+            return
+
         operation = message.get('operation', '')
         operation_type = message.get('operation_type', '')
 
@@ -96,7 +102,16 @@ class IntruderDetectClient(AsyncWebsocketClient):
 
 
 if __name__ == '__main__':
-    API_KEY = 'DjqS96FHU98FLZOVwqA3Pj4_TjLtMyNEy6VGKrWHrDA'
+    API_KEY = 'Ff30WhLcvwASASpPWvrV8ZU2E-K_WLkGJeJWy0_3VRw'
     WEBSOCKET_URL = "ws://127.0.0.1:8000/ws/device/{api_key}"
     client = IntruderDetectClient(url=WEBSOCKET_URL.format(api_key=API_KEY))
     client.connect()
+    client.camera.start(0)
+
+    # show function must on main thread
+    while True:
+        _, frame = client.camera.read(show_time=True, show_fps=True)
+        cv2.imshow('Camera {}'.format(0), frame)
+        key = cv2.waitKey(1) & 0xff
+        if key == 27:  # Esc
+            break
