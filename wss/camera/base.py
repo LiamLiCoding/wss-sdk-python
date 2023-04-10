@@ -6,10 +6,10 @@ import time
 import platform
 
 
-__all__ = ['CSICamera']
+__all__ = ['CameraBase']
 
 
-class CSICamera:
+class CameraBase:
 	def __init__(self, camera_id) -> None:
 		self.camera_id = camera_id
 		self.video_capture = None

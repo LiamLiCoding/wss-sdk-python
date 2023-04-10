@@ -1,1 +1,1 @@
-from wss.camera.csi_camera import *
+from wss.camera.base import *

@@ -1,7 +1,9 @@
 import cv2
 import base64
+import time
+
 from device import profiler
-from camera import CSICamera
+from camera import CameraBase
 from camera.detector import IntruderDetector
 from net import AsyncWebsocketClient
 
@@ -13,7 +15,7 @@ class IntruderDetectClient(AsyncWebsocketClient):
     def __init__(self, url):
         AsyncWebsocketClient.__init__(self, url)
 
-        self.camera = CSICamera(0)
+        self.camera = CameraBase(0)
         self.camera_detector = IntruderDetector(save_path='output')
         self.camera_detector.register_callback(self.on_detect_event_change)
         self.camera.enable_detector(self.camera_detector)
@@ -73,6 +75,15 @@ class IntruderDetectClient(AsyncWebsocketClient):
                 message['data_file'] = image_data
             self.send(message=message, message_type='detect_event')
 
+    def test(self):
+        path = 'output/event4_01-58-55.avi'
+        message = {'intruder_type': 4, 'data_type': 'image',
+                   'data_file': None, 'data_file_name': path.replace('output/', '')}
+        with open(path, "rb") as f:
+            image_data = base64.b64encode(f.read()).decode("utf-8")
+            message['data_file'] = image_data
+        self.send(message=message, message_type='detect_event')
+
     def on_init_message(self, message):
         operation = message.get('operation', '')
         operation_type = message.get('operation_type', '')
@@ -80,7 +91,8 @@ class IntruderDetectClient(AsyncWebsocketClient):
         if operation_type == 'profiler':
             self.enable_profiler(operation, feedback=False)
         elif operation_type == 'intruder_detection':
-            self.enable_detection(operation, feedback=False)
+            print("!!")
+            # self.enable_detection(operation, feedback=False)
 
     def on_operation_message(self, message):
         if not self._accept_operation_command:
@@ -106,6 +118,9 @@ if __name__ == '__main__':
     WEBSOCKET_URL = "ws://127.0.0.1:8000/ws/device/{api_key}"
     client = IntruderDetectClient(url=WEBSOCKET_URL.format(api_key=API_KEY))
     client.connect()
+    time.sleep(5)
+    # client.test()
+    client.test_detect('../dataset/crosswalk.avi')
     client.camera.start(0)
 
     # show function must on main thread
