@@ -1,6 +1,5 @@
 import psutil
 import threading
-import net
 
 
 class Profiler:
