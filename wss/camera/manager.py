@@ -19,7 +19,7 @@ class CameraManager:
 	MODE_PULLING = 1
 	MODE_PARALLEL = 2
 
-	def __init__(self):
+	def __init__(self) -> None:
 		# Camera Objects
 		self._cameras = []
 		self.activated_cameras = []
@@ -31,47 +31,63 @@ class CameraManager:
 		self._show_status = False
 		self._show_thread = None
 		
-	def _camera_init(self, camera_id):
+	def _camera_init(self, camera_id) -> None:
 		camera = CameraBase(camera_id)
 		self._cameras.append(camera)
 		print("Camera manager - Init camera: id {}".format(camera_id))
 
-	def init_cameras(self, number):
+	def init_cameras(self, number) -> None:
 		for camera_id in range(number):
 			self._camera_init(camera_id)
 
-	def start_all(self):
+	def start_camera(self, camera_id):
+		camera = self.get_camera_by_id(camera_id)
+		if camera:
+			camera.start()
+			print("Camera manager - Start camera: id {}".format(camera.camera_id))
+
+	def stop_camera(self, camera_id):
+		camera = self.get_camera_by_id(camera_id)
+		if camera:
+			camera.stop()
+			camera.release()
+			print("Camera manager - Stop camera: id {}".format(camera.camera_id))
+
+	def start_all(self) -> None:
 		for camera in self._cameras:
 			camera.start(camera.camera_id)
 			print("Camera manager - Start camera: id {}".format(camera.camera_id))
 
-	def get_camera_by_id(self, camera_id):
+	def stop_all(self) -> None:
+		for camera in self._cameras:
+			camera.stop()
+			camera.release()
+			print("Camera manager - Stop camera: id {}".format(camera.camera_id))
+
+	def get_camera_by_id(self, camera_id) -> object:
 		for camera in self._cameras:
 			if camera.camera_id == camera_id:
 				return camera
 		raise CameraDostNotExist('Camera id {} does not exist'.format(camera_id))
 
-	def get_all_cameras(self):
+	def get_all_cameras(self) -> list:
 		return self._cameras
 
-	def start_camera(self, camera_id):
-		pass
-
-	def get_mode(self):
+	def get_mode(self) -> int:
 		return self._running_mode
 
-	def switch_mode(self, mode):
+	def switch_mode(self, mode) -> None:
 		print("Camera Manager - Change running mode: from mode{} to mode {}".format(self._running_mode, mode))
 		self._running_mode = mode
 
-	def switch_camera(self, camera_id):
+	def switch_camera(self, camera_id) -> None:
 		if self._running_mode != self.MODE_PULLING:
 			raise CameraRunningModeError("Switch camera should be running in pulling mode!")
 		camera = self.get_camera_by_id(camera_id)
 		camera.start()
 		self.activated_cameras.append(camera)
 
-	def show(self, camera_id, show_time=False, show_fps=False):
+	def show(self, camera_id, show_time=False, show_fps=False) -> None:
 		if self._show_status:
 			print("Other showing windows is running. Please close it and retry.")
 			return
@@ -85,7 +101,7 @@ class CameraManager:
 				if key == 27:  # Esc
 					break
 
-	def show_all(self, show_time=False, show_fps=False):
+	def show_all(self, show_time=False, show_fps=False) -> None:
 		while True:
 			cameras_merge_frame = None
 			for index, camera in enumerate(self._cameras):
@@ -103,7 +119,7 @@ class CameraManager:
 			if key == 27:  # Esc
 				break
 
-	def set_detector(self, detector):
+	def set_detector(self, detector) -> None:
 		pass
 
 

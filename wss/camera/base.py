@@ -20,7 +20,6 @@ class CameraBase:
 
 		self._thread = None
 		self._thread_lock = threading.Lock()
-		self._show_thread = None
 
 		self.keep_running = False
 		self.frame_counter = 0
@@ -122,24 +121,4 @@ class CameraBase:
 
 	def enable_detector(self, detector):
 		self.detectors.append(detector)
-
-	def show(self, show_time=False, show_fps=False):
-		if platform.system() in ('Darwin', 'Linux'):
-			print("Show should be in main thread")
-			return
-		self._show_thread = threading.Thread(target=self._show_result, args=(show_time, show_fps))
-		self._show_thread.start()
-
-	def _show_result(self, show_time, show_fps):
-		while self.keep_running:
-			_, frame = self.read(show_time, show_fps)
-			cv2.imshow('Camera {}'.format(self.camera_id), frame)
-			key = cv2.waitKey(1) & 0xff
-			if key == 27:  # Esc
-				break
-
-	def stop_show(self):
-		self._show_thread.join()
-		self._show_thread = None
-
 
