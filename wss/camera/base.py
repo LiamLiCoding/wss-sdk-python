@@ -29,6 +29,9 @@ class CameraBase:
 		self.show_time = False
 		self.show_fps = False
 
+	def get_camera_id(self):
+		return self.camera_id
+
 	def open(self, source=0):
 		self.video_capture = cv2.VideoCapture(source)
 		self.set_detector_video_param()
@@ -93,6 +96,8 @@ class CameraBase:
 					self.frame = frame
 			except RuntimeError:
 				print("Could not read image from camera")
+			except Exception as ee:
+				print("camera error: {}".format(ee))
 
 	def read(self, show_time=False, show_fps=False):
 		frame = []
