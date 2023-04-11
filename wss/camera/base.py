@@ -72,6 +72,9 @@ class CameraBase:
 				                         height=int(self.video_capture.get(cv2.CAP_PROP_FRAME_HEIGHT)),
 				                         fps=int(self.video_capture.get(cv2.CAP_PROP_FPS)))
 
+	def get_default_fps(self):
+		return int(self.video_capture.get(cv2.CAP_PROP_FPS))
+
 	def get_open_status(self):
 		return self.video_capture.isOpened()
 
@@ -107,7 +110,7 @@ class CameraBase:
 				time_text = datetime.datetime.now().strftime("%A %d %B %Y %I:%M:%S")
 				cv2.putText(frame, time_text, (10, 50),
 				            cv2.FONT_HERSHEY_PLAIN, 2, (0, 0, 255), thickness=1)
-			if show_fps:
+			if show_fps and time.time() - self.start_time:
 				fps_text = "FPS {:.1f}".format(self.frame_counter / (time.time() - self.start_time))
 				cv2.putText(frame, fps_text, (10, frame.shape[0] - 10),
 				            cv2.FONT_HERSHEY_PLAIN, 2, (0, 0, 255), thickness=1)

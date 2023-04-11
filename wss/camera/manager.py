@@ -36,33 +36,40 @@ class CameraManager:
 		self._cameras.append(camera)
 		print("Camera manager - Init camera: id {}".format(camera_id))
 
-	def init_cameras(self, number) -> None:
+	def initialize_cameras(self, number) -> None:
 		for camera_id in range(number):
 			self._camera_init(camera_id)
 
-	def start_camera(self, camera_id):
-		camera = self.get_camera_by_id(camera_id)
-		if camera:
-			camera.start()
-			print("Camera manager - Start camera: id {}".format(camera.camera_id))
+	@staticmethod
+	def _stop_camera(camera_obj) -> None:
+		if camera_obj:
+			camera_obj.stop()
+			camera_obj.release()
+			print("Camera manager - Stop camera: id {}".format(camera_obj.camera_id))
 
-	def stop_camera(self, camera_id):
+	@staticmethod
+	def _start_camera(camera_obj) -> None:
+		if camera_obj:
+			camera_obj.start(camera_obj.get_camera_id())
+			print("Camera manager - Start camera: id {}".format(camera_obj.camera_id))
+
+	def start_camera_by_id(self, camera_id):
 		camera = self.get_camera_by_id(camera_id)
 		if camera:
-			camera.stop()
-			camera.release()
-			print("Camera manager - Stop camera: id {}".format(camera.camera_id))
+			self._start_camera(camera)
+
+	def stop_camera_by_id(self, camera_id):
+		camera = self.get_camera_by_id(camera_id)
+		if camera:
+			self._stop_camera(camera)
 
 	def start_all(self) -> None:
 		for camera in self._cameras:
-			camera.start(camera.camera_id)
-			print("Camera manager - Start camera: id {}".format(camera.camera_id))
+			self._start_camera(camera)
 
 	def stop_all(self) -> None:
 		for camera in self._cameras:
-			camera.stop()
-			camera.release()
-			print("Camera manager - Stop camera: id {}".format(camera.camera_id))
+			self._stop_camera(camera)
 
 	def get_camera_by_id(self, camera_id) -> object:
 		for camera in self._cameras:
@@ -125,6 +132,6 @@ class CameraManager:
 
 if __name__ == '__main__':
 	camera_manager = CameraManager()
-	camera_manager.init_cameras(2)
+	camera_manager.initialize_cameras(2)
 	camera_manager.start_all()
-	camera_manager.show_all()
+	camera_manager.show_all(show_time=True, show_fps=True)
