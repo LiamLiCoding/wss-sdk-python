@@ -33,6 +33,7 @@ class CameraBase:
 
 	def open(self, source=0):
 		self.video_capture = cv2.VideoCapture(source)
+		self.set_detector_video_properties()
 
 		if self.video_capture and self.get_open_status():
 			self.grabbed, self.frame = self.video_capture.read()
@@ -69,9 +70,9 @@ class CameraBase:
 	def get_properties(self):
 		width, height, codec, fps = 0, 0, '', 0
 		if self.video_capture:
-			width = int(self.video_capture.get(cv2.CAP_PROP_FRAME_WIDTH)),
-			height = int(self.video_capture.get(cv2.CAP_PROP_FRAME_HEIGHT)),
-			codec = int(self.video_capture.get(cv2.CAP_PROP_FOURCC)),
+			width = int(self.video_capture.get(cv2.CAP_PROP_FRAME_WIDTH))
+			height = int(self.video_capture.get(cv2.CAP_PROP_FRAME_HEIGHT))
+			codec = int(self.video_capture.get(cv2.CAP_PROP_FOURCC))
 			fps = int(self.video_capture.get(cv2.CAP_PROP_FPS))
 		return width, height, codec, fps
 
@@ -81,6 +82,12 @@ class CameraBase:
 			self.video_capture.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
 			self.video_capture.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*codec.upper()))
 			self.video_capture.set(cv2.CAP_PROP_FPS, fps)
+
+	def set_detector_video_properties(self):
+		width, height, _, fps = self.get_properties()
+		if self.detectors and self.video_capture:
+			for detector in self.detectors:
+				detector.set_video_param(width=width, height=height, fps=fps)
 
 	def get_open_status(self):
 		return self.video_capture.isOpened()

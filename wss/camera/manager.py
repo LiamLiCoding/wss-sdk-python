@@ -11,6 +11,9 @@ from wss.camera.base import CameraBase
 from wss.camera.expections import CameraDostNotExist, CameraRunningModeError
 
 
+__all__ = ['CameraManager']
+
+
 class CameraManager:
 	"""
 	Important! In macOS or Linux, CameraManager should be run in main thread.
@@ -30,6 +33,9 @@ class CameraManager:
 		# Camera show
 		self._show_status = False
 		self._show_thread = None
+
+		# detector
+		self.detector = None
 		
 	def _camera_init(self, camera_id) -> object:
 		camera = CameraBase(camera_id)
@@ -89,8 +95,8 @@ class CameraManager:
 		return self._running_mode
 
 	def switch_mode(self, mode) -> None:
-		print("Camera Manager - Change running mode: from mode{} to mode {}".format(self._running_mode, mode))
 		self._running_mode = mode
+		print("Camera Manager - Change running mode: from mode{} to mode {}".format(self._running_mode, mode))
 
 	def switch_camera(self, camera_id) -> None:
 		if self._running_mode != self.MODE_PULLING:
@@ -132,7 +138,11 @@ class CameraManager:
 				break
 
 	def set_detector(self, detector) -> None:
-		pass
+		self.detector = detector
+		for camera in self._cameras:
+			camera.enable_detector(detector)
+
+		print("Camera Manager - Set detector: {}".format(detector))
 
 
 if __name__ == '__main__':

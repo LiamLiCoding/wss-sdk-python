@@ -1,1 +1,1 @@
-from wss.camera.base import *
+from wss.camera.manager import CameraManager
