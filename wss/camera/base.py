@@ -33,7 +33,6 @@ class CameraBase:
 
 	def open(self, source=0):
 		self.video_capture = cv2.VideoCapture(source)
-		self.set_detector_video_param()
 
 		if self.video_capture and self.get_open_status():
 			self.grabbed, self.frame = self.video_capture.read()
@@ -44,13 +43,15 @@ class CameraBase:
 			self.grabbed = False
 			raise RuntimeError("Unable to open csi_camera or video source")
 
-	def start(self, source=0):
+	def start(self, source=0, width=640, height=480, codec='MJPG', fps=30):
 		self.open(source)
 		if self.keep_running:
 			print('Video capturing is already running')
 			return
 
 		if self.video_capture:
+			# TODO set properties bugs unfix
+			# self.set_properties(width, height, codec, fps)
 			self.keep_running = True
 			self._thread = threading.Thread(target=self.update)
 			self._thread.daemon = True
@@ -65,15 +66,21 @@ class CameraBase:
 			self._thread.join()
 		self._thread = None
 
-	def set_detector_video_param(self):
-		if self.detectors and self.video_capture:
-			for detector in self.detectors:
-				detector.set_video_param(width=int(self.video_capture.get(cv2.CAP_PROP_FRAME_WIDTH)),
-				                         height=int(self.video_capture.get(cv2.CAP_PROP_FRAME_HEIGHT)),
-				                         fps=int(self.video_capture.get(cv2.CAP_PROP_FPS)))
+	def get_properties(self):
+		width, height, codec, fps = 0, 0, '', 0
+		if self.video_capture:
+			width = int(self.video_capture.get(cv2.CAP_PROP_FRAME_WIDTH)),
+			height = int(self.video_capture.get(cv2.CAP_PROP_FRAME_HEIGHT)),
+			codec = int(self.video_capture.get(cv2.CAP_PROP_FOURCC)),
+			fps = int(self.video_capture.get(cv2.CAP_PROP_FPS))
+		return width, height, codec, fps
 
-	def get_default_fps(self):
-		return int(self.video_capture.get(cv2.CAP_PROP_FPS))
+	def set_properties(self, width, height, codec, fps):
+		if self.video_capture:
+			self.video_capture.set(cv2.CAP_PROP_FRAME_WIDTH, width)
+			self.video_capture.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
+			self.video_capture.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*codec.upper()))
+			self.video_capture.set(cv2.CAP_PROP_FPS, fps)
 
 	def get_open_status(self):
 		return self.video_capture.isOpened()

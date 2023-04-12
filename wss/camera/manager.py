@@ -31,10 +31,11 @@ class CameraManager:
 		self._show_status = False
 		self._show_thread = None
 		
-	def _camera_init(self, camera_id) -> None:
+	def _camera_init(self, camera_id) -> object:
 		camera = CameraBase(camera_id)
 		self._cameras.append(camera)
 		print("Camera manager - Init camera: id {}".format(camera_id))
+		return camera
 
 	def initialize_cameras(self, number) -> None:
 		for camera_id in range(number):
@@ -52,6 +53,10 @@ class CameraManager:
 		if camera_obj:
 			camera_obj.start(camera_obj.get_camera_id())
 			print("Camera manager - Start camera: id {}".format(camera_obj.camera_id))
+
+	def set_camera_properties(self, width, height, codec, fps):
+		for camera in self._cameras:
+			camera.set_properties(width, height, codec, fps)
 
 	def start_camera_by_id(self, camera_id):
 		camera = self.get_camera_by_id(camera_id)
