@@ -3,7 +3,6 @@ import copy
 import threading
 import datetime
 import time
-import platform
 
 
 __all__ = ['CameraBase']

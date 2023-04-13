@@ -106,6 +106,9 @@ class CameraManager:
 		self.activated_cameras.append(camera)
 
 	def show(self, camera_id, show_time=False, show_fps=False) -> None:
+		"""
+		!!Important!! show function will block the main thread
+		"""
 		if self._show_status:
 			print("Other showing windows is running. Please close it and retry.")
 			return
@@ -120,6 +123,9 @@ class CameraManager:
 					break
 
 	def show_all(self, show_time=False, show_fps=False) -> None:
+		"""
+		!!Important!! show all function will block the main thread
+		"""
 		while True:
 			cameras_merge_frame = None
 			for index, camera in enumerate(self._cameras):

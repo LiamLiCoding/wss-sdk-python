@@ -107,14 +107,12 @@ class IntruderDetector(BaseCameraDetector):
 
 		if event_type == self.INTRUDER_EVENT2:
 			output_path = '{}/event2_{}.jpg'.format(self.save_path, datetime.datetime.now().strftime("%I-%M-%S"))
-			frame = self.human_detect(frame)
 			cv2.imwrite(output_path, frame)
 			self.result = {'intruder_type': event_type, 'path': output_path}
 			self.on_result_change()
 
 		elif event_type == self.INTRUDER_EVENT3:
 			output_path = '{}/event3_{}.jpg'.format(self.save_path, datetime.datetime.now().strftime("%I-%M-%S"))
-			frame = self.human_detect(frame)
 			cv2.imwrite(output_path, frame)
 			self.result = {'intruder_type': event_type, 'path': output_path}
 			self.on_result_change()

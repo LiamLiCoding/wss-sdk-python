@@ -43,9 +43,9 @@ class IntruderDetectClient(AsyncWebsocketClient):
 
     def enable_detection(self, operation, feedback=True):
         if operation == 'enable':
-            self.camera.start()
+            self.camera_manager.start_all()
         else:
-            self.camera.stop()
+            self.camera_manager.stop_all()
 
         print(operation + ' detection')
         if feedback:
@@ -74,17 +74,16 @@ class IntruderDetectClient(AsyncWebsocketClient):
         self.send(data, 'profiler')
 
     def on_detect_event_change(self, data):
-        print("!!!!!", data)
-        # path = data.get('path', '')
-        # intruder_type = data.get('intruder_type', 0)
-        #
-        # if path and intruder_type:
-        #     message = {'intruder_type': intruder_type, 'data_type': 'image',
-        #                'data_file': None, 'data_file_name': path.replace('output/', '')}
-        #     with open(path, "rb") as f:
-        #         image_data = base64.b64encode(f.read()).decode("utf-8")
-        #         message['data_file'] = image_data
-        #     self.send(message=message, message_type='detect_event')
+        path = data.get('path', '')
+        intruder_type = data.get('intruder_type', 0)
+
+        if path and intruder_type:
+            message = {'intruder_type': intruder_type, 'data_type': 'image',
+                       'data_file': None, 'data_file_name': path.replace('output/', '')}
+            with open(path, "rb") as f:
+                image_data = base64.b64encode(f.read()).decode("utf-8")
+                message['data_file'] = image_data
+            self.send(message=message, message_type='detect_event')
 
     def on_init_message(self, message):
         operation = message.get('operation', '')
@@ -120,4 +119,3 @@ if __name__ == '__main__':
     WEBSOCKET_URL = "ws://127.0.0.1:8000/ws/device/{api_key}"
     client = IntruderDetectClient(url=WEBSOCKET_URL.format(api_key=API_KEY))
     client.connect()
-    time.sleep(5)
