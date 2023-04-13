@@ -101,7 +101,7 @@ class AsyncWebsocketClient:
             message = self._message_queue.get()
             try:
                 self._ws.send(message)
-                print('AsyncWebsocketClient - Send message {}'.format(message))
+                print('AsyncWebsocketClient - Send message')
             except websocket.WebSocketConnectionClosedException:
                 print('AsyncWebsocketClient: Send messages failed, connection is closed')
             except Exception as ee:

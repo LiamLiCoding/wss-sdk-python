@@ -57,7 +57,8 @@ class CameraManager:
 	@staticmethod
 	def _start_camera(camera_obj) -> None:
 		if camera_obj:
-			camera_obj.start(camera_obj.get_camera_id())
+			camera_obj.start('../dataset/crosswalk.avi')
+			# camera_obj.start(camera_obj.get_camera_id())
 			print("Camera manager - Start camera: id {}".format(camera_obj.camera_id))
 
 	def set_camera_properties(self, width, height, codec, fps):

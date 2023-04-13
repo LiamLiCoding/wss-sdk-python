@@ -105,10 +105,13 @@ class IntruderDetector(BaseCameraDetector):
 				self.not_detect_counter = 0
 				self.video_output_path = ''
 
+		self.status = event_type
+
 		if event_type == self.INTRUDER_EVENT2:
 			output_path = '{}/event2_{}.jpg'.format(self.save_path, datetime.datetime.now().strftime("%I-%M-%S"))
 			cv2.imwrite(output_path, frame)
 			self.result = {'intruder_type': event_type, 'path': output_path}
+			print("Trigger event2")
 			self.on_result_change()
 
 		elif event_type == self.INTRUDER_EVENT3:
@@ -124,7 +127,6 @@ class IntruderDetector(BaseCameraDetector):
 				self.video_output_writer = cv2.VideoWriter(self.video_output_path, cv2.VideoWriter_fourcc(*'XVID'),
 				                                           self.fps, (self.width, self.height))
 			self.video_output_writer.write(frame)
-		self.status = event_type
 
 	def human_detect(self, frame):
 		gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)

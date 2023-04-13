@@ -17,7 +17,7 @@ class IntruderDetectClient(AsyncWebsocketClient):
         self.profiler = None
         self.camera_manager = None
         self.camera_detector = None
-        self._accept_operation_command = False
+        self._accept_operation_command = True
 
         self.init_profiler()
         self.init_net_callback()
@@ -31,7 +31,7 @@ class IntruderDetectClient(AsyncWebsocketClient):
         self.camera_detector.register_callback(self.on_detect_event_change)
         self.camera_manager.set_detector(self.camera_detector)
 
-        self.camera_manager.start_all()
+        # self.camera_manager.start_all()
         # self.camera_manager.show_all(show_time=True, show_fps=True)
 
     def init_profiler(self):
@@ -52,6 +52,7 @@ class IntruderDetectClient(AsyncWebsocketClient):
             self.send({'operation_type': 'intruder_detection', 'operation': operation}, message_type='operation_feedback')
 
     def enable_profiler(self, operation, feedback=True):
+        print(operation)
         if operation == 'enable':
             self.profiler.start()
         else:
@@ -93,7 +94,7 @@ class IntruderDetectClient(AsyncWebsocketClient):
             self.enable_profiler(operation, feedback=False)
         elif operation_type == 'intruder_detection':
             print("!!")
-            # self.enable_detection(operation, feedback=False)
+            self.enable_detection(operation, feedback=False)
 
     def on_operation_message(self, message):
         if not self._accept_operation_command:
@@ -115,7 +116,7 @@ class IntruderDetectClient(AsyncWebsocketClient):
 
 
 if __name__ == '__main__':
-    API_KEY = 'Ff30WhLcvwASASpPWvrV8ZU2E-K_WLkGJeJWy0_3VRw'
+    API_KEY = 'VNOvEnjXdAKsCAJVWNt4qVHW8p5pxrOMZvqalw3rG-U'
     WEBSOCKET_URL = "ws://127.0.0.1:8000/ws/device/{api_key}"
     client = IntruderDetectClient(url=WEBSOCKET_URL.format(api_key=API_KEY))
     client.connect()
