@@ -23,6 +23,9 @@ Stay tuned for more updates on the launch of our new open source IoT platform!
 Best regards,  
 Haozheng Li
 
+---
+
+
 [![Documentation Status](https://readthedocs.org/projects/wss-client/badge/?version=latest)](https://wss-client.readthedocs.io/en/latest/?badge=latest)
 ![license](https://img.shields.io/github/license/Haozheng-Li/wss-client)
 
